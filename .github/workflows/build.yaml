@@ -1,0 +1,60 @@
+name: Build
+
+on:
+    push:
+        branches:
+            - main
+    pull_request: ~
+
+jobs:
+    phpstan:
+        runs-on: ubuntu-24.04
+        name: PHPStan
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+            - name: PHPStan
+              uses: docker://oskarstark/phpstan-ga:1.8.0
+              env:
+                  REQUIRE_DEV: true
+              with:
+                  args: analyse
+    cs-fixer:
+        runs-on: ubuntu-24.04
+        name: PHP-CS-Fixer
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+            - name: Fix CS
+              uses: docker://oskarstark/php-cs-fixer-ga
+              with:
+                args: --diff --dry-run
+    tests:
+        runs-on: ubuntu-24.04
+        strategy:
+            matrix:
+                include:
+                    - description: 'Lowest'
+                      php: '8.2'
+                      dependencies: lowest
+                    - description: '8.3'
+                      php: '8.3'
+                    - description: '8.4'
+                      php: '8.4'
+                    - description: '8.5'
+                      php: '8.5'
+        name: PHP ${{ matrix.php }} tests (${{ matrix.description }})
+        steps:
+            - name: Checkout
+              uses: actions/checkout@v6
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                  php-version: ${{ matrix.php }}
+            - name: Install dependencies
+              uses: ramsey/composer-install@v3
+              with:
+                  dependency-versions: ${{ matrix.dependencies }}
+            - name: Run tests
+              run: vendor/bin/phpunit --colors=always
+
