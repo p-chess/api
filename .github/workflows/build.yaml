@@ -14,7 +14,7 @@ jobs:
             - name: Checkout
               uses: actions/checkout@v6
             - name: PHPStan
-              uses: docker://oskarstark/phpstan-ga:1.8.0
+              uses: docker://oskarstark/phpstan-ga:1.13.0
               env:
                   REQUIRE_DEV: true
               with:
