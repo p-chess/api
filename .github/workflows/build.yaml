@@ -13,6 +13,8 @@ jobs:
         steps:
             - name: Checkout
               uses: actions/checkout@v6
+            - run: |
+                  sed -e :a -e '$d;N;2,3ba' -e 'P;D' phpstan.neon > phpstan2.neon && mv phpstan2.neon phpstan.neon
             - name: PHPStan
               uses: docker://oskarstark/phpstan-ga
               env:
